@@ -69,4 +69,14 @@ globalpay-backend/
 git clone https://github.com/your-username/globalpay-backend.git
 cd globalpay-backend
 npm install
+npm run dev
+```
+By default, the API runs at:
+👉 http://localhost:5000
+
+### CORS Notice
+
+CORS is enabled by default to allow communication with the frontend (globalpay-ui on port 3000).
+
+### Contributors
 
