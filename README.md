@@ -63,7 +63,7 @@ globalpay-backend/
 
 ## 🧪 Getting Started
 
-### 1. Clone & Install
+### Clone & Install
 
 ```bash
 git clone https://github.com/your-username/globalpay-backend.git
