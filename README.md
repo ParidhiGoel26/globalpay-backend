@@ -74,9 +74,12 @@ npm run dev
 By default, the API runs at:
 👉 http://localhost:5000
 
-### CORS Notice
+### 🌐 CORS Notice
 
 CORS is enabled by default to allow communication with the frontend (globalpay-ui on port 3000).
 
-### Contributors
+### 👥 Contributors
+Satvik Raj
 
+## 📄 License
+All rights reserved by Sentienta QualityAI. This project is part of an internal research initiative. Do not redistribute without permission.
