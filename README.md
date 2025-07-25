@@ -46,3 +46,27 @@ globalpay-backend/
 └── README.md
 
 ```
+
+---
+
+## 📦 API Endpoints
+
+| Method | Endpoint                     | Description                          |
+|--------|------------------------------|--------------------------------------|
+| POST   | `/api/verify-biometric`      | Simulate Aadhaar/biometric check     |
+| GET    | `/api/wallet/balance`        | Get mock wallet balance              |
+| GET    | `/api/wallet/history`        | Fetch recent transactions            |
+| POST   | `/api/payment`               | Simulate payment request             |
+| POST   | `/api/sync-wallet`           | Offline data sync trigger            |
+
+---
+
+## 🧪 Getting Started
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/your-username/globalpay-backend.git
+cd globalpay-backend
+npm install
+
