@@ -1,0 +1,323 @@
+openapi: 3.0.3
+info:
+  title: Vave Bharat
+  description: API specification for digital wallet and payment infrastructure.
+  version: 0.0.0
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        phone_number:
+          type: string
+        phone_status:
+          type: string
+          enum: [pending, verified]
+        full_name:
+          type: string
+        kyc_status:
+          type: string
+          enum: [pending, verified, rejected]
+
+    Wallet:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: float
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [topup, payment, withdrawal, refund, offline_sync]
+        status:
+          type: string
+          enum: [pending, success, failed]
+        timestamp:
+          type: string
+          format: date-time
+
+    AuthToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                phone_number:
+                  type: string
+                full_name:
+                  type: string
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      security: []
+
+  /auth/verify:
+    post:
+      summary: Verify phone number with OTP and create password
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                otp:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Phone verified
+      security: []
+
+  /auth/login:
+    post:
+      summary: Login using password
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                phone_number:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: Returns BearerAuth token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+
+  /auth/kyc:
+    post:
+      summary: Upload documents for KYC
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                id_proof:
+                  type: string
+                  format: binary
+                sec_pin:
+                  type: integer
+      responses:
+        '200':
+          description: KYC document uploaded
+      security:
+        - BearerAuth: []
+
+  /biometric/register:
+    post:
+      summary: Register biometric to user
+      tags: [Biometrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                biometric_hash:
+                  type: string
+      responses:
+        '200':
+          description: Biometric registered
+      security:
+        - BearerAuth: []
+
+  /biometric/verify:
+    post:
+      summary: Verify biometric authentication
+      tags: [Biometrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                biometric_hash:
+                  type: string
+      responses:
+        '200':
+          description: Biometric verified
+      security:
+        - BearerAuth: []
+
+  /wallet:
+    get:
+      summary: Get current wallet balance
+      tags: [Wallet]
+      responses:
+        '200':
+          description: Wallet balance retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+      security:
+        - BearerAuth: []
+
+  /wallet/load:
+    post:
+      summary: Load wallet from linked bank
+      tags: [Wallet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Wallet loaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+      security:
+        - BearerAuth: []
+
+  /wallet/pay:
+    post:
+      summary: Make a payment via QR or NFC
+      tags: [Wallet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                recipient:
+                  type: object
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+      security:
+        - BearerAuth: []
+
+  /wallet/transactions:
+    post:
+      summary: List transactions
+      tags: [Wallet]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                filter:
+                  type: string
+      responses:
+        '200':
+          description: List of transactions as per filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+      security:
+        - BearerAuth: []
+
+  /bank/link:
+    post:
+      summary: Link user bank account via simulated UPI
+      tags: [Bank]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                phone_number:
+                  type: string
+                selected_bank:
+                  type: string
+      responses:
+        '200':
+          description: Bank linked
+      security:
+        - BearerAuth: []
+
+  /offline/sync:
+    post:
+      summary: Sync offline transactions when online
+      tags: [Offline]
+      responses:
+        '200':
+          description: Transactions synced
+      security:
+        - BearerAuth: []
+
+  /merchant/dashboard:
+    get:
+      summary: View merchant transaction history and payouts
+      tags: [Merchant]
+      responses:
+        '200':
+          description: Merchant dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_received:
+                    type: number
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+      security:
+        - BearerAuth: []
